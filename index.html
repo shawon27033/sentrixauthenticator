@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-accent="iris">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+<title>Sentrix Authenticator — 2FA codes & password vault</title>
+
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="images/favicon.ico" sizes="any">
+<link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<meta name="theme-color" content="#F4F5F9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="description" content="Sentrix Authenticator — two-factor codes and an encrypted password vault that follow you to every device.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════════════ Splash ══════════════ -->
+<div id="splash-screen">
+  <div class="splash-content">
+    <div class="splash-mark">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <path class="mark-shell" d="M32 5 L55 14.5 v19 c0 13.5-9.6 21.5-23 25.5 C18.6 55 9 47 9 33.5 V14.5 Z"/>
+        <path class="mark-bolt" d="M35 19 L22 37 h8.5 l-2.5 12 13-18h-8.5z"/>
+      </svg>
+    </div>
+    <h1 class="splash-word">Sentrix</h1>
+    <p class="splash-sub">authenticator</p>
+    <div class="splash-track"><div class="splash-fill"></div></div>
+  </div>
+</div>
+
+<!-- ══════════════ Sign in / Sign up ══════════════ -->
+<div id="auth-screen" class="screen hidden">
+  <div class="auth-split">
+
+    <!-- ── form side ── -->
+    <div class="auth-form-side">
+      <div class="auth-inner">
+        <div class="auth-logo">
+          <span class="logo-tile"><i class="fa-solid fa-shield-halved"></i></span>
+          <span class="logo-word">Sentrix</span>
+        </div>
+
+        <div class="auth-copy" data-stage="1">
+          <h1 id="auth-title">Welcome back</h1>
+          <p id="auth-sub">Sign in to reach your codes and passwords on this device.</p>
+        </div>
+
+        <button class="btn-google" id="google-btn" type="button" data-stage="2">
+          <svg viewBox="0 0 48 48" aria-hidden="true" width="18" height="18">
+            <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6.1C12.3 13.2 17.7 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.1 5.4-4.6 7l7.6 5.9c4.4-4.1 6.7-10.1 6.7-17.4z"/>
+            <path fill="#FBBC05" d="M10.4 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.8-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.8-6.1z"/>
+            <path fill="#34A853" d="M24 48c6.2 0 11.5-2.1 15.4-5.6l-7.6-5.9c-2.1 1.4-4.8 2.3-7.8 2.3-6.3 0-11.7-3.7-13.6-9.1l-7.8 6.1C6.5 42.6 14.6 48 24 48z"/>
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <div class="rule" data-stage="3"><span>or use your email</span></div>
+
+        <form id="auth-form" autocomplete="on">
+          <div id="signup-fields" class="collapse">
+            <div class="field-row">
+              <label class="field" data-stage="4"><span>First name</span>
+                <input type="text" id="auth-fname" placeholder="Rakib" autocomplete="given-name"></label>
+              <label class="field" data-stage="4"><span>Last name</span>
+                <input type="text" id="auth-lname" placeholder="Hasan" autocomplete="family-name"></label>
+            </div>
+          </div>
+
+          <label class="field" data-stage="5"><span>Email address</span>
+            <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email" required>
+          </label>
+
+          <label class="field" data-stage="6"><span>Password</span>
+            <span class="input-wrap">
+              <input type="password" id="auth-password" placeholder="At least 6 characters" autocomplete="current-password" required minlength="6">
+              <button type="button" class="icon-btn peek" data-peek="auth-password" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+            </span>
+          </label>
+
+          <div class="form-row" data-stage="7">
+            <label class="checkline"><input type="checkbox" id="remember-me" checked><span class="box"></span>Keep me signed in</label>
+            <button class="linkish" id="forgot-btn" type="button">Forgot password?</button>
+          </div>
+
+          <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block btn-lg" data-stage="8">
+            <span class="btn-label">Sign in</span>
+            <span class="btn-spin"><i class="fa-solid fa-circle-notch"></i></span>
+          </button>
+        </form>
+
+        <p class="auth-switch" data-stage="9">
+          <span id="toggle-text">New to Sentrix?</span>
+          <button type="button" id="toggle-btn" class="linkish">Create an account</button>
+        </p>
+
+        <button class="btn btn-quiet btn-block" id="preview-btn" type="button" data-stage="10">
+          <i class="fa-regular fa-eye"></i> Take a look first — nothing is saved
+        </button>
+
+        <p class="auth-legal" data-stage="10">Encrypted on your device before it reaches the cloud.</p>
+      </div>
+    </div>
+
+    <!-- ── showcase side ── -->
+    <aside class="auth-show-side" aria-hidden="true">
+      <div class="show-glow"></div>
+      <div class="show-grid"></div>
+
+      <div class="show-inner">
+        <h2 class="show-head">Your codes.<br>On every device.</h2>
+        <p class="show-sub">Sentrix Authenticator makes the same six-digit codes as Google or Microsoft Authenticator — and keeps your passwords in the same place.</p>
+
+        <div class="preview-deck" id="preview-deck"></div>
+
+        <ul class="show-points">
+          <li><i class="fa-solid fa-qrcode"></i> Scan any 2FA QR code</li>
+          <li><i class="fa-solid fa-rotate"></i> Syncs the moment you sign in elsewhere</li>
+          <li><i class="fa-solid fa-lock"></i> Encrypted before it leaves your device</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ══════════════ Master key ══════════════ -->
+<div id="key-screen" class="screen hidden">
+  <div class="key-wrap">
+    <div class="auth-card" id="key-card">
+      <span class="brand-chip key"><i class="fa-solid fa-key"></i></span>
+      <h2 id="key-title">Unlock your vault</h2>
+      <p class="muted" id="key-sub">Your master key decrypts your data on this device.</p>
+
+      <form id="key-form">
+        <label class="field"><span>Master key</span>
+          <span class="input-wrap">
+            <input type="password" id="key-input" placeholder="Master key" autocomplete="off" required minlength="8">
+            <button type="button" class="icon-btn peek" data-peek="key-input" aria-label="Show master key"><i class="fa-regular fa-eye"></i></button>
+          </span>
+        </label>
+        <label class="field collapse" id="key-confirm-field"><span>Confirm master key</span>
+          <input type="password" id="key-confirm" placeholder="Type it again" autocomplete="off" minlength="8">
+        </label>
+
+        <div class="notice hidden" id="key-warning">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <p>Everything is encrypted with this key before it reaches Firebase. Nobody — including this app — can recover it for you. Write it down somewhere safe.</p>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="key-submit">
+          <span class="btn-label">Unlock</span><span class="btn-spin"><i class="fa-solid fa-circle-notch"></i></span>
+        </button>
+      </form>
+      <button type="button" class="linkish block-link" id="key-signout">Sign in with a different account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ App ══════════════ -->
+<div id="app-window" class="hidden">
+
+  <header class="titlebar">
+    <div class="tb-left">
+      <span class="tb-mark"><i class="fa-solid fa-shield-halved"></i></span>
+      <span class="tb-name">Sentrix Authenticator</span>
+      <span class="sync-pill" id="sync-pill"><i class="fa-solid fa-cloud"></i> <span id="sync-text">Synced</span></span>
+    </div>
+    <div class="tb-right">
+      <button class="icon-btn" id="lock-btn-desktop" title="Lock now"><i class="fa-solid fa-lock"></i></button>
+      <button class="tb-profile" data-goto="profile">
+        <img id="user-avatar-img" src="images/avatar.svg" alt="">
+        <span id="user-display-name">Account</span>
+      </button>
+      <div class="tb-controls">
+        <button title="Minimize" id="win-min"><i class="fa-solid fa-minus"></i></button>
+        <button title="Maximize" id="win-max"><i class="fa-regular fa-square"></i></button>
+        <button title="Close" class="danger" id="win-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <header class="mobilebar">
+    <button class="m-avatar" data-goto="profile"><img id="m-avatar-img" src="images/avatar.svg" alt="Profile"></button>
+    <div class="m-title">
+      <strong id="m-screen-title">Authenticator</strong>
+      <small id="m-screen-sub">Two-factor codes</small>
+    </div>
+    <button class="icon-btn" id="lock-btn-mobile" aria-label="Lock now"><i class="fa-solid fa-lock"></i></button>
+  </header>
+
+  <div class="app-body">
+    <nav class="sidebar">
+      <div class="rail-indicator" id="rail-indicator"></div>
+      <ul>
+        <li class="nav-item active" data-tab="auth"><i class="fa-solid fa-stopwatch"></i><span>Authenticator</span><b class="nav-count" id="count-totp">0</b></li>
+        <li class="nav-item" data-tab="vault"><i class="fa-solid fa-layer-group"></i><span>Passwords</span><b class="nav-count" id="count-vault">0</b></li>
+        <li class="nav-item" data-tab="generator"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Generator</span></li>
+        <li class="nav-item" data-tab="profile"><i class="fa-regular fa-user"></i><span>Profile</span></li>
+        <li class="nav-item" data-tab="settings"><i class="fa-solid fa-sliders"></i><span>Settings</span></li>
+      </ul>
+      <div class="sidebar-foot"><span class="storage-note"><i class="fa-solid fa-lock"></i> End-to-end encrypted</span></div>
+    </nav>
+
+    <main class="content-area" id="content-area">
+
+      <!-- ─── Authenticator (landing) ─── -->
+      <section id="tab-auth" class="tab-content active">
+        <div class="page-head">
+          <div>
+            <h2>Authenticator</h2>
+            <p class="muted">Six-digit codes for any account that supports an authenticator app.</p>
+          </div>
+          <button class="btn btn-primary" id="add-totp-btn"><i class="fa-solid fa-plus"></i> Add account</button>
+        </div>
+
+        <div class="toolbar">
+          <div class="searchfield">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="totpSearch" placeholder="Search your 2FA accounts">
+          </div>
+          <button class="chip" id="mask-toggle" title="Hide or show every code"><i class="fa-regular fa-eye-slash"></i> Hide codes</button>
+        </div>
+
+        <div id="totp-list" class="code-grid"></div>
+      </section>
+
+      <!-- ─── Passwords ─── -->
+      <section id="tab-vault" class="tab-content">
+        <div class="page-head">
+          <div>
+            <h2>Passwords</h2>
+            <p class="muted">Saved sign-ins, encrypted before they leave this device.</p>
+          </div>
+          <button class="btn btn-primary" id="add-cred-btn"><i class="fa-solid fa-plus"></i> Add password</button>
+        </div>
+
+        <div class="toolbar">
+          <div class="searchfield">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="searchInput" placeholder="Search by service, username or note">
+          </div>
+        </div>
+        <div class="chips" id="type-filters"></div>
+
+        <div id="vault-list" class="stack"></div>
+      </section>
+
+      <!-- ─── Generator ─── -->
+      <section id="tab-generator" class="tab-content">
+        <div class="page-head">
+          <div>
+            <h2>Generator</h2>
+            <p class="muted">Build a password that is hard to guess and easy to store.</p>
+          </div>
+        </div>
+
+        <div class="panel gen-panel">
+          <div class="gen-readout">
+            <output id="generatedPassword" class="gen-value">Press generate</output>
+            <div class="gen-actions">
+              <button class="icon-btn" id="gen-refresh" title="Generate again"><i class="fa-solid fa-rotate"></i></button>
+              <button class="btn btn-ghost" id="gen-copy"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+          </div>
+
+          <div class="meter"><div class="meter-fill" id="strength-fill"></div></div>
+          <p class="meter-label" id="strength-label">—</p>
+
+          <div class="gen-controls">
+            <label class="slider-row">
+              <span>Length <b id="lengthValue">18</b></span>
+              <input type="range" id="passLength" min="8" max="64" value="18">
+            </label>
+            <div class="switch-grid">
+              <label class="switch"><input type="checkbox" id="incUppercase" checked><span class="track"></span><span>Uppercase</span></label>
+              <label class="switch"><input type="checkbox" id="incLowercase" checked><span class="track"></span><span>Lowercase</span></label>
+              <label class="switch"><input type="checkbox" id="incNumbers" checked><span class="track"></span><span>Numbers</span></label>
+              <label class="switch"><input type="checkbox" id="incSymbols" checked><span class="track"></span><span>Symbols</span></label>
+              <label class="switch"><input type="checkbox" id="excAmbiguous"><span class="track"></span><span>Skip look-alikes (O0lI)</span></label>
+            </div>
+            <button class="btn btn-primary btn-block" id="gen-make">Generate password</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Profile ─── -->
+      <section id="tab-profile" class="tab-content">
+        <div class="page-head">
+          <div><h2>Profile</h2><p class="muted">Your account and how it looks across devices.</p></div>
+        </div>
+
+        <div class="panel profile-panel">
+          <div class="profile-top">
+            <button class="avatar-edit" id="avatar-edit" title="Change photo">
+              <img id="main-profile-img" src="images/avatar.svg" alt="">
+              <span class="avatar-veil"><i class="fa-solid fa-camera"></i></span>
+            </button>
+            <div class="profile-id">
+              <h3 id="main-profile-name">—</h3>
+              <p class="muted" id="main-profile-email">—</p>
+              <span class="tag" id="profile-tag">Signed in</span>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat"><b id="stat-totp">0</b><span>2FA accounts</span></div>
+            <div class="stat"><b id="stat-creds">0</b><span>Passwords</span></div>
+            <div class="stat"><b id="stat-devices">Cloud</b><span>Storage</span></div>
+          </div>
+
+          <div class="profile-buttons">
+            <button class="btn btn-ghost" id="change-photo"><i class="fa-regular fa-image"></i> Change photo</button>
+            <button class="btn btn-ghost" id="reset-pass"><i class="fa-solid fa-envelope"></i> Send password reset</button>
+            <button class="btn btn-danger" id="signout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Settings ─── -->
+      <section id="tab-settings" class="tab-content">
+        <div class="page-head">
+          <div><h2>Settings</h2><p class="muted">Saved to your account, so they follow you to any device.</p></div>
+        </div>
+
+        <div class="panel setting-list">
+          <div class="setting">
+            <div><strong>Appearance</strong><p class="muted">Light for daylight, dark for late nights.</p></div>
+            <div class="seg" id="theme-seg">
+              <button data-theme-val="light" class="active">Light</button>
+              <button data-theme-val="dark">Dark</button>
+            </div>
+          </div>
+
+          <div class="setting">
+            <div><strong>Accent</strong><p class="muted">Colours the buttons, rings and highlights.</p></div>
+            <div class="swatches" id="accent-swatches">
+              <button data-accent-val="iris" style="--s:#4B3FD6" title="Iris"></button>
+              <button data-accent-val="teal" style="--s:#0E9E93" title="Teal"></button>
+              <button data-accent-val="brass" style="--s:#B4801A" title="Brass"></button>
+              <button data-accent-val="rose" style="--s:#D9385F" title="Rose"></button>
+              <button data-accent-val="ink" style="--s:#2C3350" title="Graphite"></button>
+            </div>
+          </div>
+
+          <div class="setting">
+            <div><strong>Auto-lock</strong><p class="muted">Locks the vault after a stretch of inactivity.</p></div>
+            <select id="autolock-select" class="select">
+              <option value="0">Never</option><option value="1">1 minute</option>
+              <option value="5" selected>5 minutes</option><option value="15">15 minutes</option>
+              <option value="60">1 hour</option>
+            </select>
+          </div>
+
+          <div class="setting">
+            <div><strong>Hide codes until tapped</strong><p class="muted">Keeps codes covered when someone can see your screen.</p></div>
+            <label class="switch bare"><input type="checkbox" id="privacy-toggle"><span class="track"></span></label>
+          </div>
+
+          <div class="setting">
+            <div><strong>Change master key</strong><p class="muted">Re-encrypts every item with a new key.</p></div>
+            <button class="btn btn-ghost" id="change-key-btn">Change key</button>
+          </div>
+
+          <div class="setting">
+            <div><strong>Backup</strong><p class="muted">Decrypted JSON. Keep it offline — it holds real secrets.</p></div>
+            <div class="setting-pair">
+              <button class="btn btn-ghost" id="export-btn"><i class="fa-solid fa-download"></i> Export</button>
+              <input type="file" id="importFileInput" accept=".json" hidden>
+              <button class="btn btn-ghost" id="import-btn"><i class="fa-solid fa-upload"></i> Import</button>
+            </div>
+          </div>
+
+          <div class="setting danger-zone">
+            <div><strong>Delete everything</strong><p class="muted">Removes all codes and passwords from Firebase.</p></div>
+            <button class="btn btn-danger" id="wipe-btn">Delete</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <button class="fab" id="fab"><i class="fa-solid fa-plus"></i></button>
+
+  <nav class="tabbar">
+    <button class="tab-btn active" data-tab="auth"><i class="fa-solid fa-stopwatch"></i><span>Codes</span></button>
+    <button class="tab-btn" data-tab="vault"><i class="fa-solid fa-layer-group"></i><span>Passwords</span></button>
+    <button class="tab-btn" data-tab="generator"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Generate</span></button>
+    <button class="tab-btn" data-tab="settings"><i class="fa-solid fa-sliders"></i><span>Settings</span></button>
+  </nav>
+</div>
+
+<!-- ══════════════ Sheets ══════════════ -->
+
+<div class="sheet-root hidden" id="totp-sheet">
+  <div class="sheet-scrim" data-close></div>
+  <div class="sheet">
+    <div class="grabber"></div>
+    <div class="sheet-head">
+      <h3>Add a 2FA account</h3>
+      <button class="icon-btn" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="sheet-body">
+      <div class="seg wide" id="totp-mode">
+        <button data-mode="scan" class="active"><i class="fa-solid fa-camera"></i> Scan QR</button>
+        <button data-mode="image"><i class="fa-regular fa-image"></i> QR image</button>
+        <button data-mode="manual"><i class="fa-solid fa-keyboard"></i> Type key</button>
+      </div>
+
+      <div id="totp-scan" class="totp-pane">
+        <div class="scanbox">
+          <video id="qr-video" playsinline muted></video>
+          <div class="scan-frame"></div>
+          <p class="scan-hint" id="scan-hint">Point the camera at the QR code the website shows.</p>
+        </div>
+        <button class="btn btn-ghost btn-block" id="scan-toggle">Start camera</button>
+      </div>
+
+      <div id="totp-image" class="totp-pane hidden">
+        <label class="dropzone" id="qr-drop">
+          <input type="file" id="qr-file" accept="image/*" hidden>
+          <i class="fa-regular fa-image"></i>
+          <strong>Choose a QR screenshot</strong>
+          <span class="muted">Handy when the QR is on the same screen.</span>
+        </label>
+      </div>
+
+      <div id="totp-manual" class="totp-pane hidden">
+        <label class="field"><span>Website or service</span>
+          <input type="text" id="totp-issuer" placeholder="GitHub"></label>
+        <label class="field"><span>Account name</span>
+          <input type="text" id="totp-label" placeholder="you@example.com"></label>
+        <label class="field"><span>Secret key</span>
+          <input type="text" id="totp-secret" placeholder="JBSWY3DPEHPK3PXP" spellcheck="false" autocapitalize="characters"></label>
+        <details class="advanced">
+          <summary>Advanced</summary>
+          <div class="field-row">
+            <label class="field"><span>Digits</span>
+              <select id="totp-digits" class="select"><option>6</option><option>7</option><option>8</option></select></label>
+            <label class="field"><span>Refresh</span>
+              <select id="totp-period" class="select"><option value="30">30s</option><option value="60">60s</option></select></label>
+            <label class="field"><span>Algorithm</span>
+              <select id="totp-algo" class="select"><option>SHA1</option><option>SHA256</option><option>SHA512</option></select></label>
+          </div>
+        </details>
+      </div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn-ghost" data-close>Cancel</button>
+      <button class="btn btn-primary hidden" id="save-totp">Add account</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-root hidden" id="cred-sheet">
+  <div class="sheet-scrim" data-close></div>
+  <div class="sheet">
+    <div class="grabber"></div>
+    <div class="sheet-head">
+      <h3 id="cred-sheet-title">Add password</h3>
+      <button class="icon-btn" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="sheet-body">
+      <input type="hidden" id="cred-id">
+      <label class="field"><span>Service</span>
+        <select id="accTypeSelect" class="select">
+          <option value="" disabled selected>Choose a service</option>
+          <option>Facebook</option><option>Instagram</option><option>TikTok</option>
+          <option value="Twitter/X">Twitter / X</option><option>Google</option>
+          <option value="Mail">Email</option><option value="Banking">Bank / finance</option>
+          <option>GitHub</option><option value="Other">Something else</option>
+        </select>
+      </label>
+      <label class="field collapse" id="customPlatformDiv"><span>Name it</span>
+        <input type="text" id="customPlatformInput" placeholder="Netflix, Figma, office VPN…"></label>
+      <label class="field"><span>Username or email</span>
+        <input type="text" id="siteUser" placeholder="you@example.com" autocomplete="off"></label>
+      <label class="field"><span>Password</span>
+        <span class="input-wrap two">
+          <input type="password" id="sitePass" placeholder="Password" autocomplete="new-password">
+          <button type="button" class="icon-btn peek" data-peek="sitePass" aria-label="Show"><i class="fa-regular fa-eye"></i></button>
+          <button type="button" class="icon-btn" id="sheet-gen" aria-label="Generate"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+        </span>
+      </label>
+      <label class="field"><span>Website <small class="muted">optional</small></span>
+        <input type="url" id="siteUrl" placeholder="https://"></label>
+      <label class="field"><span>Note <small class="muted">optional</small></span>
+        <textarea id="siteNote" rows="2" placeholder="Recovery email, security question…"></textarea></label>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn-ghost" data-close>Cancel</button>
+      <button class="btn btn-primary" id="save-cred">Save password</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-root hidden" id="crop-sheet">
+  <div class="sheet-scrim" data-close></div>
+  <div class="sheet">
+    <div class="grabber"></div>
+    <div class="sheet-head"><h3>Crop your photo</h3><button class="icon-btn" data-close><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="sheet-body"><div class="crop-stage"><img id="crop-image-target" alt=""></div></div>
+    <div class="sheet-foot">
+      <button class="btn btn-ghost" data-close>Cancel</button>
+      <button class="btn btn-primary" id="crop-save">Use this photo</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-root hidden" id="confirm-sheet">
+  <div class="sheet-scrim" data-close></div>
+  <div class="sheet narrow">
+    <div class="grabber"></div>
+    <div class="sheet-head"><h3 id="confirm-title">Are you sure?</h3></div>
+    <div class="sheet-body"><p id="confirm-body" class="muted"></p></div>
+    <div class="sheet-foot">
+      <button class="btn btn-ghost" data-close>Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="photo-file-input" accept="image/*" hidden>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<div id="preview-banner" class="preview-banner hidden">Preview mode — nothing is saved. <button id="preview-exit" class="linkish">Sign in</button></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
