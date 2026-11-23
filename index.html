@@ -223,6 +223,33 @@
           <button class="btn btn-primary" id="add-totp-btn"><i class="fa-solid fa-plus"></i> Add account</button>
         </div>
 
+        <!-- One-time code: lives only in memory, never saved anywhere -->
+        <div class="panel onetime" id="onetime-panel">
+          <div class="onetime-head">
+            <strong><i class="fa-solid fa-bolt"></i> One-time code</strong>
+            <span class="tag">Not saved</span>
+          </div>
+          <p class="muted">Paste a secret key (or an otpauth:// link) to get a code right now. Nothing is stored — it disappears when you refresh, lock or sign out.</p>
+          <div class="onetime-form">
+            <span class="input-wrap">
+              <input type="password" id="ot-secret" placeholder="Secret key, e.g. JBSW Y3DP EHPK 3PXP"
+                     autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" name="ot-secret-nosave">
+              <button type="button" class="icon-btn peek" data-peek="ot-secret" aria-label="Show secret key"><i class="fa-regular fa-eye"></i></button>
+            </span>
+            <button type="button" class="btn btn-ghost" id="ot-clear"><i class="fa-solid fa-xmark"></i> Clear</button>
+          </div>
+          <p class="onetime-error hidden" id="ot-error"></p>
+          <div class="onetime-result hidden" id="ot-result">
+            <div class="code-value" id="ot-code" title="Tap to copy">······</div>
+            <div class="code-ring" id="ot-ring">
+              <svg viewBox="0 0 50 50"><circle class="track" cx="25" cy="25" r="21"/>
+              <circle class="prog" id="ot-prog" cx="25" cy="25" r="21" stroke-dasharray="131.95" stroke-dashoffset="0"/></svg>
+              <b id="ot-left">–</b>
+            </div>
+            <button type="button" class="icon-btn" id="ot-copy" title="Copy code"><i class="fa-regular fa-copy"></i></button>
+          </div>
+        </div>
+
         <div class="toolbar">
           <div class="searchfield">
             <i class="fa-solid fa-magnifying-glass"></i>
