@@ -357,6 +357,7 @@ function lockVault(){
   state.key = null;
   state.vault = []; state.totp = [];
   state.revealed.clear(); state.shown.clear(); state.lastCodes.clear();
+  clearOneTime();
   state.unsubs.forEach(fn => { try { fn(); } catch {} });
   state.unsubs = [];
   stopTicker();
@@ -462,7 +463,102 @@ function renderTotp(){
   tickCodes(true);
 }
 
-function startTicker(){ stopTicker(); state.tick = setInterval(() => tickCodes(false), 1000); }
+function startTicker(){
+  stopTicker();
+  state.tick = setInterval(() => { tickCodes(false); tickOneTime(); }, 1000);
+}
+
+/* ═══════════════ one-time code (memory only) ═══════════════
+   The secret is held in this variable and the input box — never in
+   Firestore, localStorage, IndexedDB or the service-worker cache.
+   A refresh, lock or sign-out wipes it. */
+
+const oneTime = { account: null, slot: null, code: '', shown: false, timer: null };
+
+function clearOneTime(){
+  clearTimeout(oneTime.timer);
+  Object.assign(oneTime, { account: null, slot: null, code: '', shown: false });
+  const input = $('#ot-secret');
+  if (input){ input.value = ''; input.type = 'password'; }
+  $('#ot-result')?.classList.add('hidden');
+  $('#ot-error')?.classList.add('hidden');
+  const eye = $('[data-peek="ot-secret"] i');
+  if (eye) eye.className = 'fa-regular fa-eye';
+}
+
+function readOneTimeInput(){
+  const raw = $('#ot-secret').value.trim();
+  const err = $('#ot-error');
+  const result = $('#ot-result');
+
+  if (!raw){
+    Object.assign(oneTime, { account: null, slot: null, code: '' });
+    err.classList.add('hidden'); result.classList.add('hidden');
+    return;
+  }
+
+  try {
+    const account = /^otpauth:\/\//i.test(raw)
+      ? parseOtpAuth(raw)
+      : { secret: normaliseSecret(raw), digits: 6, period: 30, algorithm: 'SHA1' };
+    oneTime.account = account;
+    oneTime.slot = null;
+    oneTime.shown = !state.settings.privacy;
+    err.classList.add('hidden');
+    result.classList.remove('hidden');
+    tickOneTime();
+  } catch (e){
+    oneTime.account = null;
+    result.classList.add('hidden');
+    err.textContent = e.message || 'That secret key is not valid.';
+    err.classList.remove('hidden');
+  }
+}
+
+async function tickOneTime(){
+  const account = oneTime.account;
+  if (!account) return;
+
+  const now = Date.now();
+  const period = Number(account.period) || 30;
+  const left = secondsLeft(period, now);
+  const slot = Math.floor(now / 1000 / period);
+
+  $('#ot-left').textContent = left;
+  $('#ot-prog').style.strokeDashoffset = (131.95 * (1 - left / period)).toFixed(2);
+  $('#ot-ring').classList.toggle('expiring', left <= 5);
+  $('#ot-code').classList.toggle('expiring', left <= 5);
+
+  if (oneTime.slot !== slot){
+    try { oneTime.code = await generateCode(account, now); }
+    catch { oneTime.code = ''; }
+    if (oneTime.account !== account) return;   // cleared while we were computing
+    oneTime.slot = slot;
+  }
+
+  const code = oneTime.code;
+  const hide = !oneTime.shown;
+  const codeEl = $('#ot-code');
+  codeEl.classList.toggle('masked', hide);
+  codeEl.textContent = !code ? 'invalid'
+    : hide ? '•'.repeat(code.length)
+    : code.replace(/(.{3})(?=.)/g, '$1 ');
+}
+
+function wireOneTime(){
+  const input = $('#ot-secret');
+  input.value = '';   // some browsers restore field values after a refresh
+  input.addEventListener('input', () => {
+    clearTimeout(oneTime.timer);
+    oneTime.timer = setTimeout(readOneTimeInput, 350);
+  });
+  $('#ot-clear').onclick = () => { clearOneTime(); input.focus(); };
+  $('#ot-copy').onclick = () => { if (oneTime.code) copyText(oneTime.code, 'Code copied'); };
+  $('#ot-code').onclick = () => {
+    if (!oneTime.shown){ oneTime.shown = true; tickOneTime(); }
+    else if (oneTime.code) copyText(oneTime.code, 'Code copied');
+  };
+}
 function stopTicker(){ if (state.tick) clearInterval(state.tick); state.tick = null; }
 
 async function tickCodes(force){
@@ -922,6 +1018,7 @@ async function signOutNow(){
   stopTicker(); stopScanner();
   Object.assign(state, { uid:null, key:null, profile:null, vault:[], totp:[], preview:false });
   state.lastCodes.clear();
+  clearOneTime();
   $('#preview-banner').classList.add('hidden');
   try { await logoutUser(); } catch {}
   show('auth');
@@ -1249,6 +1346,7 @@ function wire(){
 
 async function boot(){
   wire();
+  wireOneTime();
   setAuthMode(false);
   applySettings();
 
