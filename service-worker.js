@@ -3,7 +3,7 @@
    network-first so a new deploy is picked up on the next load.
    Firebase traffic is never cached: stale vault data would be worse than none. */
 
-const CACHE = 'sentrix-vault-v4';
+const CACHE = 'sentrix-vault-v5';
 const SHELL = [
   './',
   './index.html',
