@@ -439,6 +439,20 @@ textarea{ resize:vertical; min-height:62px; }
 }
 @keyframes sweep{ from{ transform: translateX(-100%); } to{ transform: translateX(100%); } }
 
+/* ═══════════ One-time code panel ═══════════ */
+.onetime{ padding:18px 20px; margin-bottom:18px; }
+.onetime-head{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.onetime-head strong{ font-size:15px; letter-spacing:-.015em; }
+.onetime-head strong i{ color: var(--accent); margin-right:6px; }
+.onetime > .muted{ font-size:12.5px; margin-bottom:14px; }
+.onetime-form{ display:flex; gap:10px; align-items:center; }
+.onetime-form .input-wrap{ flex:1; min-width:0; }
+.onetime-error{ margin-top:10px; font-size:12.5px; color: var(--bad); }
+.onetime-result{ display:flex; align-items:center; gap:16px; margin-top:14px; padding:14px 16px;
+  background: var(--field); border-radius: var(--r-md); }
+.onetime-result .code-value{ flex:1; font-size:34px; width:auto; }
+.onetime-result .icon-btn{ background: var(--paper); }
+
 /* ═══════════ Vault rows ═══════════ */
 .vault-row{
   display:grid; grid-template-columns: 44px minmax(0,1.1fr) minmax(0,1.2fr) auto;
